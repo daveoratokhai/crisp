@@ -1,0 +1,73 @@
+/* Makes this vault look like Crisp. Values mirror src/app/globals.css
+   (Evercrisp's palette from projects.evercrisp.ai, 2026-09-29). Keep them in
+   sync when the app's tokens change. */
+
+.theme-light {
+  --background-primary: #ffffff;
+  --background-primary-alt: #eaf9f9;
+  --background-secondary: #eaf9f9;
+  --background-secondary-alt: #ffffff;
+  --background-modifier-border: #d0e3e4;
+  --background-modifier-hover: #e5f2f3;
+  --text-normal: #15292e;
+  --text-muted: #1d3e44;
+  --text-faint: #506a6f;
+  --text-accent: #00747a;
+  --text-accent-hover: #00868d;
+  --text-selection: rgba(0, 176, 184, 0.24);
+  --interactive-accent: #00747a;
+  --interactive-accent-hover: #00868d;
+  --accent-h: 183;
+  --accent-s: 100%;
+  --accent-l: 24%;
+  --h1-color: #15292e;
+  --h2-color: #15292e;
+  --h3-color: #15292e;
+  --blockquote-border-color: #00747a;
+  --code-background: #e5f2f3;
+  --code-normal: #b4232a;
+}
+
+.theme-dark {
+  --background-primary: #122529;
+  --background-primary-alt: #091a1e;
+  --background-secondary: #091a1e;
+  --background-secondary-alt: #122529;
+  --background-modifier-border: #2d3f43;
+  --background-modifier-hover: #1c2f33;
+  --text-normal: #e6efef;
+  --text-muted: #c3d2d4;
+  --text-faint: #90a6a9;
+  --text-accent: #49c1c4;
+  --text-accent-hover: #35b9bf;
+  --text-selection: rgba(73, 193, 196, 0.25);
+  --interactive-accent: #49c1c4;
+  --interactive-accent-hover: #35b9bf;
+  --accent-h: 181;
+  --accent-s: 51%;
+  --accent-l: 53%;
+  --h1-color: #e6efef;
+  --h2-color: #e6efef;
+  --h3-color: #e6efef;
+  --blockquote-border-color: #49c1c4;
+  --code-background: #1c2f33;
+  --code-normal: #fc696b;
+}
+
+body {
+  --font-text-theme: "Google Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-interface-theme: "Google Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-monospace-theme: "Google Sans Code", "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --h1-weight: 600;
+  --h2-weight: 600;
+  --h3-weight: 600;
+}
+
+.markdown-rendered blockquote {
+  border-left-width: 3px;
+  padding: 0 14px;
+  background: none;
+}

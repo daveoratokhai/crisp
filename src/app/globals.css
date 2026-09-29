@@ -1,0 +1,245 @@
+@import "tailwindcss";
+
+/*
+ * Crisp design tokens (2026-09-29): Evercrisp's own look, taken from
+ * projects.evercrisp.ai in light and dark. Teal-tinted slate, white (light)
+ * or deep teal (dark) cards on a tinted canvas, teal accent, 16px cards and
+ * pill buttons. Layout keeps the Notion-style sidebar, and OpenMetadata-style
+ * Explore and document pages.
+ *
+ * One deliberate change from the source: light mode's teal is #00747a, not
+ * #00868d, which falls just short of WCAG AA for text and for white text on
+ * buttons. Every text pair here is measured at AA in both themes.
+ */
+
+:root {
+  --bg: #eaf9f9;
+  --surface: #ffffff;
+  --sidebar: #ffffff;
+  --sidebar-edge: #d0e3e4;
+  --text: #15292e;
+  --text-2: #1d3e44;
+  --icon: #506a6f;
+  --topbar-icon: #1d3e44;
+  --muted: #506a6f;
+  --faint: #506a6f;
+  --kbd: #506a6f;
+  --hover: #e5f2f3;
+  --line: #d0e3e4;
+  --grid: #d0e3e4;
+  --title-placeholder: #90a6a9;
+  --blue: #00747a;
+  --on-blue: #f6fbfb;
+  --link: #00747a;
+  --accent-soft: #d9f0f1;
+  --success: #007a55;
+  --success-bg: #e0f7f0;
+  --warning: #bb4d00;
+  --warning-bg: #fff1db;
+  --code-bg: #e5f2f3;
+  --code-text: #b4232a;
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 2px rgba(56, 88, 96, 0.05), 0 8px 24px rgba(56, 88, 96, 0.06);
+  --shadow-menu: 0 0 0 1px rgba(21, 41, 46, 0.06), 0 4px 8px rgba(21, 41, 46, 0.08), 0 12px 28px rgba(21, 41, 46, 0.12);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #091a1e;
+    --surface: #122529;
+    --sidebar: #122529;
+    --sidebar-edge: #2d3f43;
+    --text: #e6efef;
+    --text-2: #c3d2d4;
+    --icon: #90a6a9;
+    --topbar-icon: #c3d2d4;
+    --muted: #90a6a9;
+    --faint: #90a6a9;
+    --kbd: #90a6a9;
+    --hover: #1c2f33;
+    --line: #34474a;
+    --grid: #2d3f43;
+    --title-placeholder: #5d7275;
+    --blue: #49c1c4;
+    --on-blue: #04191e;
+    --link: #49c1c4;
+    --accent-soft: #20373b;
+    --success: #5ee9b5;
+    --success-bg: #0f3d37;
+    --warning: #ffd230;
+    --warning-bg: #383822;
+    --code-bg: #1c2f33;
+    --code-text: #fc696b;
+    --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-menu: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 8px rgba(0, 0, 0, 0.35), 0 12px 28px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #091a1e;
+  --surface: #122529;
+  --sidebar: #122529;
+  --sidebar-edge: #2d3f43;
+  --text: #e6efef;
+  --text-2: #c3d2d4;
+  --icon: #90a6a9;
+  --topbar-icon: #c3d2d4;
+  --muted: #90a6a9;
+  --faint: #90a6a9;
+  --kbd: #90a6a9;
+  --hover: #1c2f33;
+  --line: #34474a;
+  --grid: #2d3f43;
+  --title-placeholder: #5d7275;
+  --blue: #49c1c4;
+  --on-blue: #04191e;
+  --link: #49c1c4;
+  --accent-soft: #20373b;
+  --success: #5ee9b5;
+  --success-bg: #0f3d37;
+  --warning: #ffd230;
+  --warning-bg: #383822;
+  --code-bg: #1c2f33;
+  --code-text: #fc696b;
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-menu: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 8px rgba(0, 0, 0, 0.35), 0 12px 28px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-edge: var(--sidebar-edge);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-icon: var(--icon);
+  --color-topbar-icon: var(--topbar-icon);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-kbd: var(--kbd);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-grid: var(--grid);
+  --color-title-placeholder: var(--title-placeholder);
+  --color-blue: var(--blue);
+  --color-on-blue: var(--on-blue);
+  --color-surface: var(--surface);
+  --color-link: var(--link);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+
+  /* Google Sans, as on Evercrisp's site. Self-hosted by next/font at build time: no request to Google at runtime. */
+  --font-sans: var(--font-google-sans), ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-google-sans-code), "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --shadow-menu: var(--shadow-menu);
+  --shadow-card: var(--shadow-card);
+
+  /* Explore's three-pane width: the 270px sidebar plus browse, cards and details. A named
+     breakpoint so it sorts after lg; an arbitrary min-[1360px] lost to lg's grid-cols. */
+  --breakpoint-wide: 85rem;
+}
+
+/* Which half of the theme toggle shows: light-mode content by default, dark-mode
+   content whenever dark is in effect (saved choice, or the OS with none saved). */
+.theme-when-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-when-dark { display: contents; }
+  :root:not([data-theme="light"]) .theme-when-light { display: none; }
+}
+:root[data-theme="dark"] .theme-when-dark { display: contents; }
+:root[data-theme="dark"] .theme-when-light { display: none; }
+.theme-when-light { display: contents; }
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(0, 176, 184, 0.24);
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -1px;
+  border-radius: 6px;
+}
+
+/* Page content: block typography. */
+.prose-crisp {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.prose-crisp > * {
+  margin: 2px 0;
+  padding: 3px 2px;
+}
+.prose-crisp h1 { font-size: 1.875em; font-weight: 600; line-height: 1.3; margin-top: 2em; margin-bottom: 4px; }
+.prose-crisp h2 { font-size: 1.5em; font-weight: 600; line-height: 1.3; margin-top: 1.4em; margin-bottom: 1px; }
+.prose-crisp h3 { font-size: 1.25em; font-weight: 600; line-height: 1.3; margin-top: 1em; margin-bottom: 1px; }
+.prose-crisp > :first-child { margin-top: 0; }
+.prose-crisp strong { font-weight: 600; }
+.prose-crisp a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+.prose-crisp ul { list-style: disc; padding-left: 1.7em; }
+.prose-crisp ol { list-style: decimal; padding-left: 1.7em; }
+.prose-crisp li { padding: 3px 0 3px 2px; }
+.prose-crisp blockquote {
+  border-left: 3px solid var(--blue);
+  padding: 0 14px;
+  margin: 4px 0;
+}
+.prose-crisp code {
+  font-family: var(--font-mono);
+  font-size: 85%;
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+.prose-crisp pre {
+  background: var(--hover);
+  padding: 32px 16px 32px 32px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 85%;
+}
+.prose-crisp pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+.prose-crisp table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.prose-crisp th,
+.prose-crisp td {
+  border: 1px solid var(--grid);
+  padding: 7px 9px;
+  text-align: left;
+  vertical-align: top;
+  min-width: 120px;
+}
+.prose-crisp th { background: var(--hover); font-weight: 500; }
+.prose-crisp hr { border: 0; border-top: 1px solid var(--grid); margin: 6px 0; padding: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
