@@ -51,6 +51,7 @@ export function DocTabs({
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const commentsRef = useRef<HTMLElement>(null);
+  const composerRef = useRef<HTMLDivElement>(null);
   const marksRef = useRef(new Map<string, HTMLElement[]>());
 
   const openComment = useCallback((id: string) => {
@@ -113,7 +114,12 @@ export function DocTabs({
   // A fresh selection inside the content area offers a Comment button.
   useEffect(() => {
     if (!commentsEnabled) return;
-    const onMouseUp = () => {
+    const onMouseUp = (e: MouseEvent) => {
+      // A click on our own floating button/composer (Comment, Cancel, Post,
+      // the textarea) also collapses whatever text was selected, as any
+      // click elsewhere on the page does. Without this guard that collapse
+      // would wipe `pending` out from under the very button meant to use it.
+      if (composerRef.current?.contains(e.target as Node)) return;
       const root = contentRef.current;
       const sel = window.getSelection();
       if (!root || !sel || sel.isCollapsed || sel.rangeCount === 0) return setPending(null);
@@ -218,7 +224,11 @@ export function DocTabs({
       </article>
 
       {commentsEnabled && pending && (
-        <div style={{ position: "absolute", top: pending.top - 44, left: pending.left }} className="z-10 flex flex-col gap-2">
+        <div
+          ref={composerRef}
+          style={{ position: "absolute", top: pending.top - 44, left: pending.left }}
+          className="z-10 flex flex-col gap-2"
+        >
           {!composerOpen ? (
             <button
               type="button"
