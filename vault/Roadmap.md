@@ -14,8 +14,8 @@
 - ✅ Notion features removed, Crisp vocabulary in (2026-09-29).
 - ✅ Redesigned after OpenMetadata (2026-09-29): rail, top bar, Explore with working filters/sort/search, entity document page, dashboard Home. Palette measured AA.
 - ✅ Production pass (2026-09-29): auth on every write and page, security headers, localhost binding, error page, dark mode toggle, dead code cleared.
-- ⬜ Hosting (Vercel): needs drafts off the local disk first.
-- ⬜ Comments (tab placeholder), page actions (⋯).
+- ✅ Hosting (Vercel, 2026-10-05): live read-only at crisp-nu.vercel.app. ⬜ Editable hosting still needs drafts moved from disk into Supabase.
+- ✅ Comments (2026-10-05): highlight published text to comment on it (`src/features/doc/doc-tabs.tsx`, `comments` table). ⬜ page actions (⋯) still inert.
 - ⬜ Measure Notion's light theme.
 - ✅ Block editor (`src/features/editor/`): click to edit, Enter/Shift+Enter, Backspace merge, arrows, `/` menu, drag and Mod+Shift+Arrow reorder, autosave, editable title.
 - ✅ Sign-in: Google OAuth via Supabase, gated on a `team_members` row (`src/app/auth/`, `src/features/auth/`). ⬜ Dave: enable Google in the Supabase dashboard and add the first member (README "Sign-in" section has both).
@@ -27,7 +27,7 @@
 
 ## Week 2: agents, assets, proof
 
-- ✅ MCP server `mcp/server.ts` (stdio, SDK 1.30): list_documents, list_clients, search_documents, read_document, create_document, update_document. Verified over the real protocol by `mcp/smoke-test.ts`. ⬜ record_decision waits for the database.
+- ✅ MCP server `mcp/server.ts` (stdio, SDK 1.30): list_documents, list_clients, search_documents, read_document, create_document, update_document, **publish_document** (2026-10-05, Dave's explicit opt-in). Verified over the real protocol by `mcp/smoke-test.ts` (publish_document exercised manually against the live project, not yet in the smoke test script). ⬜ record_decision waits for the database.
 - ✅ `⌘K` search (local, in the browser). The database has a `tsvector` column ready for shared search.
 - ⬜ Image and file blocks on Supabase Storage
 - 🔄 Seed and migrate. Four process SOPs copied verbatim. Givebacks docs are labelled placeholders.

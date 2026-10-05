@@ -30,7 +30,7 @@ Light teal: the site's `#00868d` gives 4.19:1 for white button text and 4.38:1 a
 | Left rail, blue filled active item, expandable groups | Home, Explore, My drafts; Clients and Processes groups with counts; New page at the bottom | `features/shell/app-rail.tsx`, `rail-link.tsx` |
 | Top bar: search, All Domains, user | Search (Enter → Explore; ⌘K quick search), client picker, you (appearance, sign out) | `app-header.tsx`, `header-search.tsx`, `client-scope.tsx`, `workspace-menu.tsx` |
 | Explore: filter chips, QUERY line, three panes | Type / Client / Process / Status filters + sort, all in the URL; browse tree; result cards; detail panel | `app/(app)/explore/page.tsx`, `features/explore/*` |
-| Entity page: header card, properties strip, tabs | Breadcrumb, title, Publish; Client / Process / Type / Status / Updated / Published; Content and Comments (not built) tabs | `app/(app)/d/[id]/page.tsx` |
+| Entity page: header card, properties strip, tabs | Breadcrumb, title, Publish; Client / Process / Type / Status / Updated / Published; Content and Comments tabs (comments shipped 2026-10-05: highlight published text to comment) | `app/(app)/d/[id]/page.tsx`, `features/doc/doc-tabs.tsx` |
 | Home dashboard | Stats linking into Explore, recently edited, your drafts, clients | `app/(app)/page.tsx` |
 
 Responsive: rail becomes a drawer below 1024px; browse pane from 1024px; detail panel from 1280px. Below that, a card opens the document instead of selecting it.

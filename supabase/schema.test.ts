@@ -103,7 +103,7 @@ describe("row-level security", () => {
   });
 
   it("shows a signed-in non-member nothing, in every table", async () => {
-    for (const table of ["team_members", "clients", "processes", "engagements", "documents", "blocks", "decisions"]) {
+    for (const table of ["team_members", "clients", "processes", "engagements", "documents", "blocks", "decisions", "comments"]) {
       const { rows } = await as(OUTSIDER, `select * from public.${table}`);
       expect(rows, table).toHaveLength(0);
     }

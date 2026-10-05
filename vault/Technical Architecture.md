@@ -24,9 +24,12 @@
 | `src/features/blocks/split.ts` | Markdown body to blocks and back (code fences kept whole) |
 | `src/features/editor/*` | Block editor, slash menu, commands, title editor |
 | `src/features/search/*` | Ranking (`rank.ts`, plain) and the Cmd+K dialog |
-| `src/app/actions.ts` | Server actions: save body, rename, create page, publish. Validates input, then `refresh()` |
+| `src/app/actions.ts` | Server actions: save body, rename, create page, publish, **addComment** (2026-10-05). Validates input, then `refresh()` |
 | `src/features/shell/share-button.tsx` | Two-click publish button (document pages only) |
-| `mcp/server.ts`, `mcp/smoke-test.ts` | MCP server and its end-to-end protocol test |
+| `src/features/comments/types.ts`, `store.ts` | `Comment` type; `loadComments()`, server-only, read via RLS |
+| `src/features/doc/doc-tabs.tsx` | Content/Comments tabs (replaces the old inert placeholder spans): selection → floating "Comment" button → composer; re-locates every comment's quote in the rendered text each render and underlines it; click a highlight ↔ click a comment card to jump between them |
+| `supabase/migrations/20261005000001_comments.sql` | `comments` table: document_id FK, author_id/author_email, quote/prefix/suffix (W3C text-quote anchor), body. Same per-table RLS policy shape as every other table |
+| `mcp/server.ts`, `mcp/smoke-test.ts` | MCP server and its end-to-end protocol test. `publish_document` (2026-10-05) added alongside the read/create/update tools — writes straight to the team Supabase table using the agent's own session, mirroring `publishDoc` in `actions.ts` |
 | `mcp/session.ts`, `mcp/login.ts` | Agent's own Supabase session (~/.crisp/agent-session.json, 0600, re-read every call) and the `mcp:login` OAuth flow on port 54390 |
 | `src/features/shell/team-newer-notice.tsx` | "A teammate shared a newer version" notice, two-click take-theirs |
 | `supabase/migrations/`, `seed.sql`, `schema.test.ts` | Shared-layer schema, seed, PGlite tests |
@@ -57,7 +60,7 @@
 | `src/content/site.ts` | All copy |
 | `workspace/` | Local documents |
 
-Tests: `*.test.ts` beside the code. 50 tests: markdown serialisation, block splitting, store writes (temp dirs), publish state, sidebar tree, breadcrumbs, slash commands, search ranking, schema and RLS.
+Tests: `*.test.ts` beside the code. 80 tests: markdown serialisation, block splitting, store writes (temp dirs), publish state, sidebar tree, breadcrumbs, slash commands, search ranking, schema and RLS (now including `comments`, added to the same "non-member sees nothing" sweep as every other table).
 
 ## Data model (schema live on the real project; nothing published through it yet)
 
@@ -100,3 +103,14 @@ Tests: `*.test.ts` beside the code. 50 tests: markdown serialisation, block spli
 - **Geist request in dev** comes from Next's dev overlay, not the app. Production HTML has no webfont.
 - **`NEXT_DIST_DIR` is not a Next setting.** Builds go to `.next`; dev output is isolated in `.next/dev`.
 - **React Compiler lint** rejects setState in effects and DOM mutation in handlers. Theme uses `useSyncExternalStore`; drawer uses derived state.
+- **React Compiler lint also rejects reading `ref.current` during render**, including inline `ref={el => ...}` callbacks on a mapped list (`doc-tabs.tsx`'s comment cards). Fixed by using a plain `data-comment-id` attribute plus `querySelector` from an effect/handler instead of a ref map, and by deriving "orphaned" status into state inside the effect that computes it rather than reading the marks ref during the render pass.
+- **Manually mutating a React-rendered subtree is fragile**, even outside render: `doc-tabs.tsx` wraps comment quotes in `<mark>` via raw DOM (`Range.surroundContents`) because ReactMarkdown owns that subtree and splitting its output around arbitrary markdown character offsets isn't tractable. Kept safe by always fully unwrapping the previous pass's marks before re-wrapping (so DOM structure returns to exactly what React last rendered before React could ever diff against it), and by never doing this under a block that's actively being edited (edit mode swaps to a plain `<textarea>`, an entirely different React branch, so there's nothing manually mutated for React to reconcile into).
+
+
+## Hosting on Vercel (2026-10-05)
+- `src/lib/deploy.ts` `isReadOnlyHost()` is true when `VERCEL === "1"`. `assertWritable()` in `features/auth/guard.ts` runs before `requireMember()` in every write action; pages pass `writable` to the sidebar, title, editor, Share and team-newer notice, which disable themselves with `copy.topbar.readOnlyHost` / `copy.editor.readOnly`. Tested in `features/auth/deploy.test.ts`.
+- Vercel project `evercrisp/crisp`, env vars `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` set for Production and Preview. Pushing `main` to `daveoratokhai/crisp` auto-deploys.
+- Gotcha: `vercel link` writes a `VERCEL_OIDC_TOKEN` into the git-ignored `.env.local`; harmless.
+- Gotcha: the org repo could not connect because only org owners can authorize Vercel's GitHub App.
+- Gotcha: Supabase only redirects to exact URLs in its Redirect URLs list; each new domain needs `<origin>/auth/callback` added.
+- Gotcha: a `\u00a0` non-breaking space sits in `doc-editor.tsx` placeholder text; exact-string edits against it fail silently.

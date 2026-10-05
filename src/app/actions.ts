@@ -231,3 +231,64 @@ export async function takeTeamVersion(id: string): Promise<{ ok: true } | { ok: 
   refresh();
   return { ok: true };
 }
+
+const MAX_QUOTE = 2000;
+const MAX_CONTEXT = 200;
+const MAX_COMMENT = 10_000;
+
+export type AddCommentResult = { ok: true } | { ok: false; message: string };
+
+/**
+ * Add a comment anchored to a span of text in a published document. Never
+ * touches the local file or the local-first write path: a comment lives only
+ * in the team database, the same place the published text itself lives, so
+ * it needs no writable disk and works on a read-only deployment.
+ *
+ * `quote`/`prefix`/`suffix` are the W3C Web Annotation "text quote" selector:
+ * the exact selected text plus a little surrounding context, so the client
+ * can re-locate it in the rendered text later (see comments/store.ts).
+ */
+export async function addComment(
+  documentId: string,
+  selection: { quote: string; prefix: string; suffix: string },
+  body: string
+): Promise<AddCommentResult> {
+  if (typeof documentId !== "string" || !documentId) return { ok: false, message: "Invalid document" };
+  const quote = typeof selection?.quote === "string" ? selection.quote.trim() : "";
+  const prefix = typeof selection?.prefix === "string" ? selection.prefix.slice(0, MAX_CONTEXT) : "";
+  const suffix = typeof selection?.suffix === "string" ? selection.suffix.slice(0, MAX_CONTEXT) : "";
+  const text = typeof body === "string" ? body.trim() : "";
+  if (!quote) return { ok: false, message: "Select some text to comment on." };
+  if (!text) return { ok: false, message: "Write something before posting." };
+  if (quote.length > MAX_QUOTE || text.length > MAX_COMMENT) return { ok: false, message: "That's too long." };
+  if (!hasSupabase()) return { ok: false, message: "Comments need the team database, which is not connected yet." };
+
+  try {
+    await requireMember();
+  } catch (e) {
+    if (e instanceof UnauthorizedError) return { ok: false, message: e.message };
+    throw e;
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Sign in to comment." };
+
+  const { error } = await supabase.from("comments").insert({
+    document_id: documentId,
+    author_id: user.id,
+    author_email: user.email ?? null,
+    quote,
+    prefix,
+    suffix,
+    body: text,
+  });
+  // 23503: the document isn't published (no matching row in `documents`).
+  if (error?.code === "23503") return { ok: false, message: "Publish this page before commenting on it." };
+  if (error) return { ok: false, message: `Could not add the comment: ${error.message}` };
+
+  refresh();
+  return { ok: true };
+}

@@ -69,6 +69,23 @@ export const copy = {
     tabs: { content: "Content", comments: "Comments" },
   },
 
+  comments: {
+    count: (n: number) => (n === 0 ? "No comments" : `${n} ${n === 1 ? "comment" : "comments"}`),
+    empty: "No comments yet. Highlight any published text to leave one.",
+    needsPublish: "Publish this page before it can be commented on.",
+    noBackend: "Comments need the team database, which is not connected yet.",
+    selectHint: "Highlight text in Content to comment on it.",
+    addButton: "Comment",
+    placeholder: "Write a comment…",
+    post: "Post",
+    posting: "Posting…",
+    cancel: "Cancel",
+    postFailed: "Couldn't post",
+    orphaned: "On text that has since changed",
+    signIn: "Sign in to comment.",
+    jump: "View in content",
+  },
+
   topbar: {
     share: "Publish",
     shareNoBackend: "Publishing needs the team database, which is not connected yet.",

@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { copy } from "@/content/site";
+import { loadComments } from "@/features/comments/store";
+import { DocTabs } from "@/features/doc/doc-tabs";
 import { DocEditor } from "@/features/editor/doc-editor";
 import { TitleEditor } from "@/features/editor/title-editor";
 import { CopyLinkButton } from "@/features/shell/copy-link-button";
-import { IconButton, notBuilt } from "@/features/shell/icon-button";
+import { IconButton } from "@/features/shell/icon-button";
 import { ShareButton } from "@/features/shell/share-button";
 import { StatusBadge } from "@/features/shell/status-badge";
 import { TeamNewerNotice } from "@/features/shell/team-newer-notice";
@@ -40,6 +42,9 @@ export default async function DocPage({ params, searchParams }: PageProps<"/d/[i
   if (!doc) notFound();
   const behindTeam = teamIsNewer(doc);
   const writable = !isReadOnlyHost();
+  const commentsEnabled = hasSupabase() && Boolean(doc.publishedAt);
+  const comments = commentsEnabled ? await loadComments(doc.id) : [];
+  const disabledReason = commentsEnabled ? null : !hasSupabase() ? copy.comments.noBackend : copy.comments.needsPublish;
 
   const stage = doc.process
     ? (docs.find((d) => d.docType === "sop" && d.process === doc.process && !d.client)?.title ?? titleCase(doc.process))
@@ -110,24 +115,14 @@ export default async function DocPage({ params, searchParams }: PageProps<"/d/[i
         <TeamNewerNotice docId={doc.id} when={formatDate(doc.teamPublishedAt)} changed={doc.state === "changed"} writable={writable} />
       )}
 
-      <section className="rounded-2xl border border-grid bg-surface shadow-card">
-        <div role="tablist" aria-label={copy.doc.tabs.content} className="flex gap-6 border-b border-grid px-5">
-          <span role="tab" aria-selected="true" className="-mb-px border-b-2 border-blue py-3 text-sm font-medium text-link">
-            {copy.doc.tabs.content}
-          </span>
-          <span role="tab" aria-selected="false" {...notBuilt} className="py-3 text-sm text-muted">
-            {copy.doc.tabs.comments}
-          </span>
-        </div>
-        <article className="px-5 py-5 md:px-16">
-          <DocEditor
-            key={doc.id}
-            docId={doc.id}
-            initialBlocks={doc.blocks.map((b) => (b.type === "markdown" ? b.content.text : ""))}
-            writable={writable}
-          />
-        </article>
-      </section>
+      <DocTabs docId={doc.id} comments={comments} commentsEnabled={commentsEnabled} disabledReason={disabledReason}>
+        <DocEditor
+          key={doc.id}
+          docId={doc.id}
+          initialBlocks={doc.blocks.map((b) => (b.type === "markdown" ? b.content.text : ""))}
+          writable={writable}
+        />
+      </DocTabs>
     </div>
   );
 }
