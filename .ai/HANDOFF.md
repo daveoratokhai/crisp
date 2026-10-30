@@ -71,7 +71,7 @@ Also run this session: `npm test` 67/67 (conflicts, imports, clock skew, session
 Not verified: the real OAuth flow (needs the Supabase OAuth server enabled), so the Allow/Deny card itself has never rendered; the callback's return-to redirect after a real Google sign-in; anything on Vercel (not pushed).
 
 ## Next action
-(2026-10-30) Hosted MCP is deployed and Dave's Claude Code is signed in to it as `crisp-hosted` (OAuth server on, pre-registered public client `Claude`, consent and OAuth session confirmed in Supabase's `auth` tables). Remaining: confirm one real tool call from Dave's interactive session ("list my Crisp documents using crisp-hosted"), then send Ben the README "Hosted MCP" add command. Publish the four process SOPs so hosted agents can see them. Docs commit after `b5ce0f3` is local only; push when convenient (it redeploys).
+(2026-10-30) Hosted MCP is deployed and Dave's Claude Code is signed in to it as `crisp-hosted` (OAuth server on, pre-registered public client `Claude`, consent and OAuth session confirmed in Supabase's `auth` tables). Dave confirmed a real tool call through it (list_documents returned his Crisp documents). Remaining: send Ben the README "Hosted MCP" add command and watch his first connection. Publish the four process SOPs so hosted agents can see them. Everything is pushed and deployed.
 
 ## Blockers
 - The Mac's disk is full (about 0.5 GB free on 2026-10-30). Turbopack's dev cache could not persist; `.next/dev` was cleared to make room. Free space before long dev sessions, or use the `crisp-prod` launch config.
