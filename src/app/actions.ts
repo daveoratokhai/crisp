@@ -1,6 +1,7 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { redirect } from "next/navigation";
 import { joinMarkdown } from "@/features/blocks/split";
 import { createDoc, importDoc, markPublished, readById, replaceWithTeam, saveBody, saveTitle } from "@/features/workspace/store";
 import { fetchTeamDoc } from "@/features/workspace/team-fetch";
@@ -291,4 +292,26 @@ export async function addComment(
 
   refresh();
   return { ok: true };
+}
+
+/**
+ * Allow or deny an agent's connection request (the OAuth consent page). Only
+ * Supabase is written, never the disk, so it works on the read-only host.
+ * Either way the person goes back to the agent, carrying a code or a refusal.
+ */
+export async function decideConnection(authorizationId: string, allow: boolean) {
+  await requireMember();
+  if (typeof authorizationId !== "string" || !authorizationId || authorizationId.length > 200) {
+    throw new Error("Invalid connection request");
+  }
+
+  const supabase = await createClient();
+  const { data, error } = allow
+    ? await supabase.auth.oauth.approveAuthorization(authorizationId, { skipBrowserRedirect: true })
+    : await supabase.auth.oauth.denyAuthorization(authorizationId, { skipBrowserRedirect: true });
+
+  if (error || !data?.redirect_url) {
+    redirect(`/oauth/consent?authorization_id=${encodeURIComponent(authorizationId)}&error=decision`);
+  }
+  redirect(data.redirect_url);
 }

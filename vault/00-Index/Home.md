@@ -58,6 +58,8 @@ Not a SaaS-replacement play: the stack is Slack, Gmail, Sheets, Artifacts. The l
 | 2026-09-29 | Agents get their own Supabase session via `mcp:login`, not the browser's and never a service key. RLS applies to the agent exactly as to the person |
 | 2026-10-05 | **MCP server can now publish** (Dave, explicit opt-in): `publish_document` added to `mcp/server.ts`, mirroring `publishDoc` in `src/app/actions.ts` exactly (same conflict check, client/process upsert, block replacement). This reverses the file's original header comment ("publishing is a deliberate human action... never something an agent does here") on Dave's explicit request after being shown that tradeoff; local `create_document`/`update_document` still never publish on their own |
 | 2026-10-05 | **Comments shipped**: highlight any published text to leave a comment on it. New `comments` table (`supabase/migrations/20261005000001_comments.sql`), `addComment` server action, `src/features/doc/doc-tabs.tsx` replaces the old inert Content/Comments tabs. Anchoring is the W3C "text quote" selector (quote + prefix/suffix context), re-located by content match on every render rather than a stored offset — survives unrelated edits elsewhere in the doc; a comment whose exact quoted text is later edited away is flagged "orphaned" but never lost. Works on the read-only Vercel host too, since it only writes to Supabase, never the local disk |
+| 2026-10-30 | **Hosted MCP endpoint** (`/mcp`) so teammates connect agents without the repo. Read only, published documents only. Auth is Supabase Auth's OAuth 2.1 server with Crisp's own consent page; the token runs as the person under RLS, never a service key. Local stdio server keeps the write tools. Details in [[Technical Architecture]] |
+| 2026-10-30 | Ben added to `team_members` (role member) after his first sign-in attempt |
 
 ## Open questions
 
@@ -73,5 +75,9 @@ Not a SaaS-replacement play: the stack is Slack, Gmail, Sheets, Artifacts. The l
 - ⬜ For Dave: switch Notion to Light for a minute so the light theme can be measured (currently unmeasured).
 - ⬜ For Dave: when customising, which of Notion's failing contrast pairs to fix (see [[Design & Style]]).
 - ⬜ For Dave: this Supabase project and Google Cloud project are personal, to be migrated to Evercrisp's own accounts eventually. When that happens: transfer or recreate the Supabase project (migrations are files, easy to reapply), add the production domain to Supabase's redirect URL allowlist (the Google OAuth client's own redirect URI never changes, since it always points at Supabase, not at Crisp's own domain), and swap `.env.local` / the deploy's env vars to the new project's keys.
+- ⬜ For Dave: switch on the OAuth server for the hosted MCP (README "Hosted MCP"): enable it, Authorization Path `/oauth/consent`, dynamic registration on, Site URL `https://crisp-nu.vercel.app`. Then deploy and connect one agent end to end.
+- ⬜ For Dave: publish the four process SOPs. Only 7 documents are published (2026-10-30); hosted agents and teammates see nothing else.
+- ⬜ For Dave: Supabase free tier paused the project after a quiet week (2026-10-29), which broke sign-in until restored. Upgrade or keep-alive if the team relies on Crisp.
+- ✅ Agent session: `npm run mcp:login` done (session file from 2026-10-05, still valid 2026-10-30).
 - ✅ Two-axes navigation: resolved as parallel trees (2026-09-28).
 - ✅ Supabase project URL and anon key: provided 2026-09-29.

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { CONSENT_PATH, RETURN_COOKIE } from "@/features/auth/return-to";
 
 /**
  * Refreshes the Supabase session cookie and fences the app behind sign-in.
@@ -11,6 +12,13 @@ import { NextResponse, type NextRequest } from "next/server";
  * Pages still check the user; this is the outer fence, not the only one.
  */
 export async function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  // The hosted MCP endpoint and its OAuth metadata are called by connectors
+  // with no browser cookie. They check the bearer token and team membership
+  // themselves (features/mcp/remote.ts); redirecting them to /login would break them.
+  if (path === "/mcp" || path.startsWith("/.well-known/")) return NextResponse.next();
+
   let response = NextResponse.next({ request });
 
   // No Supabase project configured yet: let requests through so the shell
@@ -48,13 +56,26 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
   const isAuthRoute = path.startsWith("/login") || path.startsWith("/auth");
 
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    url.search = "";
+    const redirect = NextResponse.redirect(url);
+    // An agent's connection request must survive the Google round trip, so
+    // the callback can send the person back to approve it. A cookie, not a
+    // query param: Supabase only redirects to exact allowlisted URLs.
+    if (path === CONSENT_PATH) {
+      redirect.cookies.set(RETURN_COOKIE, `${path}${request.nextUrl.search}`, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: request.nextUrl.protocol === "https:",
+        maxAge: 600,
+        path: "/",
+      });
+    }
+    return redirect;
   }
 
   // A session alone is not enough: the anon key is public, so anyone can

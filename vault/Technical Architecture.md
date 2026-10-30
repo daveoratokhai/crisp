@@ -114,3 +114,17 @@ Tests: `*.test.ts` beside the code. 80 tests: markdown serialisation, block spli
 - Gotcha: the org repo could not connect because only org owners can authorize Vercel's GitHub App.
 - Gotcha: Supabase only redirects to exact URLs in its Redirect URLs list; each new domain needs `<origin>/auth/callback` added.
 - Gotcha: a `\u00a0` non-breaking space sits in `doc-editor.tsx` placeholder text; exact-string edits against it fail silently.
+
+## Hosted MCP (2026-10-30)
+✅ Built and tested locally. ⬜ Deployed. ⬜ Supabase OAuth server switched on (Dave).
+- `POST /mcp`: Streamable HTTP, stateless (fresh `McpServer` + `WebStandardStreamableHTTPServerTransport` per request, JSON responses), so it runs on Vercel. GET/DELETE return 405. `src/features/mcp/remote.ts`, route `src/app/mcp/route.ts`.
+- Tools: read only (`list_documents`, `list_clients`, `search_documents`, `read_document`) over **published** documents. Registered by `registerReadTools()` in `src/features/mcp/read-tools.ts`, shared with the local stdio server (`mcp/server.ts` keeps the write tools). `hosted: true` drops local-copy wording.
+- Auth: bearer token = Supabase access token from Supabase Auth's OAuth 2.1 server (beta). `supabase.auth.getUser(token)` asks the Auth server, then a `team_members` read (RLS) gates it: no token or bad token 401 with `WWW-Authenticate: Bearer resource_metadata=...`, non-member 403. Queries run as the person; no service key.
+- Discovery: `GET /.well-known/oauth-protected-resource` (RFC 9728) points connectors at `<supabase>/auth/v1`.
+- Consent: `/oauth/consent` (outside `(app)`, behind the proxy fence). Shows client name, scopes and the **redirect host** (dynamic registration lets any client pick any name). Allow/Deny via `decideConnection` in `src/app/actions.ts` (`requireMember()` first, Supabase only, so fine on the read-only host).
+- Signed out at consent: proxy sets `crisp-return-to` cookie (10 min, httpOnly); `/auth/callback` sends the person back via `safeReturnTo()` (`src/features/auth/return-to.ts`, consent path only, tested against open redirects). Cookie, not a query param, because Supabase redirects only to exact allowlisted URLs.
+- Proxy lets `/mcp` and `/.well-known/*` through untouched: they authenticate themselves. Redirecting a connector to `/login` breaks it.
+- Tests: `src/features/mcp/remote.test.ts` (401/403/405/503, metadata), `src/features/auth/return-to.test.ts`. Real HTTP run with Dave's agent token: initialize, tools/list, all four tools, real data.
+- Gotcha: a new route needs `npx next typegen` before tsc knows `PageProps<"/new/route">`.
+- Gotcha: the Mac's disk filled (156 MB free) and Turbopack's dev cache failed to persist. `.next/dev/cache` alone was 912 MB; deleting `.next/dev` is safe (regenerated). Launch config `crisp-prod` (`npm start` after `next build`) avoids growing it.
+- Gotcha: only 7 documents are published. The four process SOPs and the Givebacks placeholders are local only, so hosted agents (and Ben) cannot see them until they are published.

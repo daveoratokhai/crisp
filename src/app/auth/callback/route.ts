@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { RETURN_COOKIE, safeReturnTo } from "@/features/auth/return-to";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -34,5 +35,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.redirect(new URL("/", origin));
+  // Back to an agent's connection request, if sign-in interrupted one.
+  const returnTo = safeReturnTo(request.cookies.get(RETURN_COOKIE)?.value);
+  const response = NextResponse.redirect(new URL(returnTo ?? "/", origin));
+  if (returnTo) response.cookies.delete(RETURN_COOKIE);
+  return response;
 }

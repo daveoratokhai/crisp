@@ -110,7 +110,7 @@ Claude Code can search, read, create and update Crisp documents through an MCP s
 claude mcp add crisp --scope user -e CRISP_WORKSPACE="/Users/apple/Documents/Claude Code/crisp/workspace" -- npm --prefix "/Users/apple/Documents/Claude Code/crisp" run mcp --silent
 ```
 
-Tools: `list_documents`, `list_clients`, `search_documents`, `read_document`, `create_document`, `update_document`. Everything an agent writes is local (Private); editing a published document marks it "Unpublished changes". Agents never publish.
+Tools: `list_documents`, `list_clients`, `search_documents`, `read_document`, `create_document`, `update_document`, `publish_document`. Create and update write local files only; editing a published document marks it "Unpublished changes". `publish_document` shares a document with the team and is only for when the user asks for it.
 
 **Team documents for agents.** The server reads the team's published documents once it has its own sign-in:
 
@@ -119,13 +119,33 @@ npm run mcp:login    # opens Google; keeps a session in ~/.crisp/agent-session.j
 npm run mcp:logout   # deletes it
 ```
 
-Needs `http://localhost:54390/callback` in Supabase → Authentication → URL Configuration → Redirect URLs. Only a team member's session is kept. It is a separate session from the app's (sharing one would sign you out, since Supabase rotates tokens), and row-level security applies to it exactly as to you. Without it, every tool still works on local documents and says team documents are not included. Editing a teammate's document through an agent saves a local copy first; agents never publish.
+Needs `http://localhost:54390/callback` in Supabase → Authentication → URL Configuration → Redirect URLs. Only a team member's session is kept. It is a separate session from the app's (sharing one would sign you out, since Supabase rotates tokens), and row-level security applies to it exactly as to you. Without it, every tool still works on local documents and says team documents are not included. Editing a teammate's document through an agent saves a local copy first.
 
 To exercise every tool against a throwaway copy of the workspace:
 
 ```bash
 cp -R workspace /tmp/crisp-ws && CRISP_WORKSPACE=/tmp/crisp-ws npx tsx mcp/smoke-test.ts
 ```
+
+### Hosted MCP (no repo needed)
+
+The deployed app also serves MCP over HTTP at `/mcp`, so a teammate can connect an agent with nothing installed:
+
+```bash
+claude mcp add --transport http crisp https://crisp-nu.vercel.app/mcp
+```
+
+Then `/mcp` in Claude Code to sign in. In the Claude app: Settings → Connectors → Add custom connector, same URL.
+
+- **Read only, published only.** `list_documents`, `list_clients`, `search_documents`, `read_document`. The host has no drafts to see and no disk to write; writes stay with the local server.
+- **Sign-in is Supabase Auth's OAuth 2.1 server.** The connector finds it through `/.well-known/oauth-protected-resource`, sends the person through Google, then to Crisp's consent page (`/oauth/consent`) to Allow or Deny. The token it gets back is a normal Supabase access token, so every query runs as that person under row-level security, and non-members get 403. No service key.
+- **Code:** `src/features/mcp/remote.ts` (auth, stateless transport), `src/features/mcp/read-tools.ts` (shared with the local server), `src/app/mcp/route.ts`, `src/app/.well-known/oauth-protected-resource/route.ts`, `src/app/oauth/consent/page.tsx`, `decideConnection` in `src/app/actions.ts`.
+
+One-time Supabase setup (dashboard):
+
+1. Authentication → OAuth Server: enable it, set **Authorization Path** to `/oauth/consent`, and allow dynamic client registration (connectors register themselves).
+2. Authentication → URL Configuration: **Site URL** must be the deployed origin (`https://crisp-nu.vercel.app`). The consent page lives at Site URL + Authorization Path.
+3. If the OAuth server asks for it, switch JWT signing keys to asymmetric (Settings → JWT Keys). Supabase recommends it; existing sessions keep working.
 
 ## Publishing
 

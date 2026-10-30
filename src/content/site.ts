@@ -197,6 +197,23 @@ export const copy = {
     signOut: "Sign out",
   },
 
+  // The OAuth consent page an agent's connector sends you to (/oauth/consent).
+  consent: {
+    title: "Connect an agent to Crisp",
+    body: (client: string) => `${client} wants to read Crisp as you.`,
+    detail:
+      "It will see every document published to the team, as you do. It cannot see drafts on anyone's computer, and it cannot change anything.",
+    returnsTo: (host: string) => `After you choose, you go back to ${host}.`,
+    signedInAs: (email: string) => `Signed in as ${email}`,
+    scopes: "Requested access:",
+    approve: "Allow",
+    deny: "Deny",
+    unnamedClient: "An app",
+    missing: "This link has no connection request in it. Start connecting again from your agent.",
+    failed: "This connection request has expired or was already used. Start connecting again from your agent.",
+    decisionFailed: "Your choice could not be saved. Start connecting again from your agent.",
+  },
+
   error: {
     title: "Something went wrong",
     body: "This page could not load. Your documents are safe; nothing was changed.",
