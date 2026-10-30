@@ -132,10 +132,10 @@ cp -R workspace /tmp/crisp-ws && CRISP_WORKSPACE=/tmp/crisp-ws npx tsx mcp/smoke
 The deployed app also serves MCP over HTTP at `/mcp`, so a teammate can connect an agent with nothing installed:
 
 ```bash
-claude mcp add --transport http crisp https://crisp-nu.vercel.app/mcp
+claude mcp add --transport http --scope user --client-id e65d6ed7-6795-4450-9154-607fef8b8b0b --callback-port 54391 crisp https://crisp-nu.vercel.app/mcp
 ```
 
-Then `/mcp` in Claude Code to sign in. In the Claude app: Settings → Connectors → Add custom connector, same URL.
+Then `/mcp` in a new Claude Code session, Authenticate, sign in with Google and Allow on Crisp's consent page. In the Claude app: Settings → Connectors → Add custom connector, same URL, with the same client ID under Advanced settings. The client ID is not a secret: the client is public and uses PKCE.
 
 - **Read only, published only.** `list_documents`, `list_clients`, `search_documents`, `read_document`. The host has no drafts to see and no disk to write; writes stay with the local server.
 - **Sign-in is Supabase Auth's OAuth 2.1 server.** The connector finds it through `/.well-known/oauth-protected-resource`, sends the person through Google, then to Crisp's consent page (`/oauth/consent`) to Allow or Deny. The token it gets back is a normal Supabase access token, so every query runs as that person under row-level security, and non-members get 403. No service key.
@@ -143,7 +143,7 @@ Then `/mcp` in Claude Code to sign in. In the Claude app: Settings → Connector
 
 One-time Supabase setup (dashboard):
 
-1. Authentication → OAuth Server: enable it, set **Authorization Path** to `/oauth/consent`, and allow dynamic client registration (connectors register themselves).
+1. Authentication → OAuth Server: enable it and set **Authorization Path** to `/oauth/consent`. Dynamic client registration stays off (the dashboard has no switch for it, and off is tighter). Instead one client is registered there by hand: name `Claude`, type public, redirect URIs `http://localhost:54391/callback` (Claude Code, hence `--callback-port 54391`) and `https://claude.ai/api/mcp/auth_callback` (Claude app). Done 2026-10-30; its ID is in the command above.
 2. Authentication → URL Configuration: **Site URL** must be the deployed origin (`https://crisp-nu.vercel.app`). The consent page lives at Site URL + Authorization Path.
 3. If the OAuth server asks for it, switch JWT signing keys to asymmetric (Settings → JWT Keys). Supabase recommends it; existing sessions keep working.
 

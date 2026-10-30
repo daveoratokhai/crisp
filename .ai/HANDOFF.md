@@ -4,7 +4,7 @@
 Build Crisp, Evercrisp's internal knowledge spine: a Notion-like, local-first app where documents, SOPs, skills and client work live, organised by client and by process, readable by agents through an MCP server. Origin: Ben's 2026-09-28 todo to "Evercrispify Evercrisp". Full plan: `/Users/apple/.claude/plans/users-apple-downloads-transcript-2026-0-goofy-brooks.md`. Vault: `vault/00-Index/Home.md`.
 
 ## Status
-(2026-10-30) Live read-only at crisp-nu.vercel.app with Google sign-in working; Dave and Ben are both in `team_members`. Local app does editing and publishing. A **hosted MCP endpoint** (`/mcp`) is built and tested locally with a real token but not yet deployed, and its sign-in needs Supabase's OAuth server switched on (dashboard, Dave). Only 7 documents are published; the four process SOPs are not.
+(2026-10-30) Live read-only at crisp-nu.vercel.app with Google sign-in working; Dave and Ben are both in `team_members`. Local app does editing and publishing. A **hosted MCP endpoint** (`/mcp`) is deployed (`b5ce0f3`, pushed 2026-10-30) and verified live on crisp-nu.vercel.app: metadata, 401 challenge, 405, consent redirect with Secure cookie, and all read tools with Dave's real token. Its OAuth sign-in waits on Supabase's OAuth server being switched on (dashboard, Dave); the discovery URL still returned 404. Only 7 documents are published; the four process SOPs are not.
 
 ## Completed
 - Scaffold, Notion-replica shell (dark measured, light unmeasured), document pages with centred title and property row (first departure from Notion).
@@ -71,10 +71,9 @@ Also run this session: `npm test` 67/67 (conflicts, imports, clock skew, session
 Not verified: the real OAuth flow (needs the Supabase OAuth server enabled), so the Allow/Deny card itself has never rendered; the callback's return-to redirect after a real Google sign-in; anything on Vercel (not pushed).
 
 ## Next action
-Dave, in the Supabase dashboard: Authentication > OAuth Server: enable, Authorization Path `/oauth/consent`, allow dynamic client registration; Authentication > URL Configuration: Site URL `https://crisp-nu.vercel.app`. Then push `main` to `personal` (auto-deploys), run `claude mcp add --transport http crisp-hosted https://crisp-nu.vercel.app/mcp`, sign in through `/mcp`, and confirm Allow on the consent page returns to Claude Code and `list_documents` works. Then send Ben the one-line add command. Also publish the four process SOPs so hosted agents can see them.
+(2026-10-30) Hosted MCP is deployed and Dave's Claude Code is signed in to it as `crisp-hosted` (OAuth server on, pre-registered public client `Claude`, consent and OAuth session confirmed in Supabase's `auth` tables). Remaining: confirm one real tool call from Dave's interactive session ("list my Crisp documents using crisp-hosted"), then send Ben the README "Hosted MCP" add command. Publish the four process SOPs so hosted agents can see them. Docs commit after `b5ce0f3` is local only; push when convenient (it redeploys).
 
 ## Blockers
-- Supabase OAuth server not enabled yet (dashboard, Dave). Until then the hosted endpoint answers 401 to every connector.
 - The Mac's disk is full (about 0.5 GB free on 2026-10-30). Turbopack's dev cache could not persist; `.next/dev` was cleared to make room. Free space before long dev sessions, or use the `crisp-prod` launch config.
 - Supabase free tier pauses the project after a quiet week (happened 2026-10-29). Upgrade or keep-alive if the team relies on it.
 - Open questions for Ben in `vault/00-Index/Home.md`: internal only or client-reachable; local-first or hosted editing.

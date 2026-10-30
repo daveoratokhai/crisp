@@ -29,7 +29,7 @@
 
 - ✅ MCP server `mcp/server.ts` (stdio, SDK 1.30): list_documents, list_clients, search_documents, read_document, create_document, update_document, **publish_document** (2026-10-05, Dave's explicit opt-in). Verified over the real protocol by `mcp/smoke-test.ts` (publish_document exercised manually against the live project, not yet in the smoke test script). ⬜ record_decision waits for the database.
 - ✅ `⌘K` search (local, in the browser). The database has a `tsvector` column ready for shared search.
-- 🔄 Hosted MCP (2026-10-30): `/mcp` over HTTP, read tools on published docs, Supabase OAuth 2.1 + `/oauth/consent`. ✅ Built, tested locally with a real token. ⬜ Dave enables the OAuth server in Supabase. ⬜ Deploy and connect Ben's agent end to end. ⬜ Hosted write tools (need drafts in Supabase first).
+- 🔄 Hosted MCP (2026-10-30): `/mcp` over HTTP, read tools on published docs, Supabase OAuth 2.1 + `/oauth/consent`. ✅ Built, tested locally with a real token. ✅ Deployed and verified live on crisp-nu.vercel.app (2026-10-30). ✅ OAuth server on, client `Claude` pre-registered. ✅ Dave's Claude Code signed in and allowed (server-side records confirm). ⬜ Ben connects with the README command. ⬜ Hosted write tools (need drafts in Supabase first).
 - ⬜ Image and file blocks on Supabase Storage
 - 🔄 Seed and migrate. Four process SOPs copied verbatim. Givebacks docs are labelled placeholders.
 - ✅ One agent end to end. Registered at user scope (2026-09-29, `claude mcp get crisp` shows Connected). A fresh headless Claude Code session read the four SOPs through it and wrote `Evercrisp methodology at a glance` (`internal/evercrisp-methodology-at-a-glance.md`) back, checked against the sources.
